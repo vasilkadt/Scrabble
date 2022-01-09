@@ -1,31 +1,169 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32002.261
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scrabble_game", "Scrabble_game\Scrabble_game.vcxproj", "{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Debug|x64.ActiveCfg = Debug|x64
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Debug|x64.Build.0 = Debug|x64
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Debug|x86.ActiveCfg = Debug|Win32
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Debug|x86.Build.0 = Debug|Win32
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Release|x64.ActiveCfg = Release|x64
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Release|x64.Build.0 = Release|x64
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Release|x86.ActiveCfg = Release|Win32
-		{6D9739E0-CFC8-4E8D-A810-0C9C9ADF9033}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7B6A04A0-B5DF-4718-B16D-E73C5E85EE50}
-	EndGlobalSection
-EndGlobal
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+int lettersLimit = 10;
+int rounds = 5;
+int shuffleLimit = 2;
+int remainingTries = 2;
+
+bool validateCharacters(string word, vector<char> letters, vector<string> dictionary, int gameLettersLimit)
+{
+	//Check if the word has more letters than expected
+	if (word.length() > gameLettersLimit)
+	{
+		return false;
+	}
+
+	//Check if the generated letters can form the word
+	for (char character : word)
+	{
+		if (find(letters.begin(), letters.end(), character) != letters.end() == false)
+		{
+			return false;
+		}
+	}
+
+	//Check if the dictionary contains the word
+	if (find(dictionary.begin(), dictionary.end(), word) != dictionary.end() == false)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void startGame()
+{
+	//Create a vector of strings from the dictionary txt file
+	vector<string> dictionary;
+	ifstream myfile("dictionary.txt");
+	copy(istream_iterator<string>(myfile), istream_iterator<string>(), back_inserter(dictionary));
+
+	vector<char> letters;
+	int score = 0;
+	int roundNumber = 1;
+	int gameLettersLimit = lettersLimit;
+	int gameRounds = rounds;
+	int gameShuffleLimit = shuffleLimit;
+	int gameRemainingTries = remainingTries;
+
+	while (gameRounds > 0 && gameRemainingTries > 0)
+	{
+		//Initialize the random number generator used by rand()
+		srand(time(NULL));
+
+		//Fill the char vector with random english letters
+		for (auto i = 0; i < gameLettersLimit; i++)
+		{
+			letters.push_back('a' + rand() % 26);
+			cout << letters[i] << " ";
+		}
+
+		cout << endl;
+		string word;
+		cout << "Round: " << roundNumber << ". Try with word or type 0 for new letters:" << endl;
+		cin >> word;
+
+		if (word == "0")
+		{
+			if (gameShuffleLimit > 0)
+			{
+				letters.clear();
+				gameShuffleLimit--;
+			}
+
+			continue;
+		}
+		else if (!validateCharacters(word, letters, dictionary, gameLettersLimit))
+		{
+			gameRemainingTries--;
+			cout << "Invalid word. Remaining tries: " << gameRemainingTries << endl;
+
+			continue;
+		}
+		else
+		{
+			letters.clear();
+			score += word.length();
+			cout << "Your points so far are: " << score << endl;
+			roundNumber++;
+			gameRounds--;
+
+			if (gameRounds == 0)
+			{
+				cout << "Congratulations! You completed the game successfully with " << score << " points." << endl;
+				cout << "Returning to menu." << endl;
+			}
+		}
+	}
+}
+
+void changeNumberOfLetters()
+{
+	cout << "Enter the new number of letters:" << endl;
+	cin >> lettersLimit;
+}
+
+void changeNumberOfRounds()
+{
+	cout << "Enter the new number of rounds:" << endl;
+	cin >> rounds;
+}
+
+void changeShuffleLimit()
+{
+	cout << "Enter the new number of shuffles:" << endl;
+	cin >> rounds;
+}
+
+void enterNewWord()
+{
+	//to do
+}
+
+int main()
+{
+	auto gameOn = true;
+
+	while (gameOn == true)
+	{
+		int input;
+
+		cout << "Press 1 to start a new game" << endl;
+		cout << "Press 2 to change the number of letters" << endl;
+		cout << "Press 3 to change the number of rounds" << endl;
+		cout << "Press 4 to change the number of shuffles" << endl;
+		cout << "Press 5 to enter a new word" << endl;
+		cout << "Press 6 to exit" << endl;
+
+		cin >> input;
+
+		switch (input)
+		{
+		case 1:
+			startGame();
+			break;
+		case 2:
+			changeNumberOfLetters();
+			break;
+		case 3:
+			changeNumberOfRounds();
+			break;
+		case 4:
+			changeShuffleLimit();
+			break;
+		case 5:
+			enterNewWord();
+			break;
+		case 6:
+			gameOn = false;
+			break;
+		default:
+			break;
+		}
+	}
+}
