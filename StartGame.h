@@ -76,8 +76,9 @@ void startGame()
 			cout << endl;
 			cout << "Round: " << roundNumber << ". Try with word or type 0 for new letters:" << endl;
 			cout << "Available letters: ";
-			for (int i = 0; i < letters.size(); i++)
+			for (int i = 0; i < gameLettersLimit; i++)
 			{
+				letters.push_back('a' + rand() % 26);
 				cout << letters[i] << " ";
 			}
 			cout << endl;
